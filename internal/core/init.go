@@ -1,37 +1,15 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
-package cmd
+package core
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
-
-	"github.com/briandowns/spinner"
-	"github.com/fatih/color"
-	"github.com/spf13/cobra"
 )
 
-// initCmd represents the init command
-var initCmd = &cobra.Command{
-	Use:   "init [path]",
-	Short: "Initialize a new API test folder with examples",
-	Args:  cobra.ExactArgs(1),
-	RunE:  Run,
-}
-
-func Run(cmd *cobra.Command, args []string) error {
-	printColorfulLogo()
-	s := spinner.New(spinner.CharSets[14], 80*time.Millisecond)
-	s.Prefix = "Initializing project... "
-	s.Color("cyan")
-	s.Start()
-	basePath := filepath.Join(args[0], "lavapi")
+func Init(basePath string) error {
 	files := map[string]any{
-		"auth/login.lavapi.json": loginSample(),
+		"auth/login.lavapi.json": testFileSample(),
 		"auth/register.lavapi.json": map[string]string{
 			"$schema": "https://aliamerj.github.io/lavapi-json/lavapi.schema.json",
 		},
@@ -66,12 +44,11 @@ func Run(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to write file: %w", err)
 		}
 	}
-	s.Stop()
-	color.New(color.FgHiGreen, color.Bold).Printf("✅ Project initialized successfully at %s\n", basePath)
 	return nil
+
 }
 
-func loginSample() map[string]any {
+func testFileSample() map[string]any {
 	return map[string]any{
 		"$schema":  "https://aliamerj.github.io/lavapi-json/lavapi.schema.json",
 		"endpoint": "/api/auth/login",
@@ -102,32 +79,4 @@ func loginSample() map[string]any {
 			},
 		},
 	}
-}
-
-func printColorfulLogo() {
-	colors := []func(a ...any) string{
-		color.New(color.FgCyan).SprintFunc(),
-		color.New(color.FgHiYellow).SprintFunc(),
-		color.New(color.FgHiYellow).SprintFunc(),
-		color.New(color.FgRed).SprintFunc(),
-		color.New(color.FgRed).SprintFunc(),
-	}
-
-	logoLines := []string{
-		"██╗      █████╗ ██╗   ██╗ █████╗ ██████╗ ██╗",
-		"██║     ██╔══██╗██║   ██║██╔══██╗██╔══██╗██║",
-		"██║     ███████║██║   ██║███████║██████╔╝██║",
-		"██║     ██╔══██║╚██╗ ██╔╝██╔══██║██╔═══╝ ██║",
-		"███████╗██║  ██║ ╚████╔╝ ██║  ██║██║     ██║",
-		"╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═╝  ╚═╝╚═╝     ╚═╝",
-	}
-
-	for i, line := range logoLines {
-		fmt.Println(colors[i%len(colors)](line))
-		time.Sleep(60 * time.Millisecond)
-	}
-
-	fmt.Println()
-	color.New(color.Bold).Println("⚡ Lavapi 🔥: A Modern CLI for API Testing ✨")
-	fmt.Println()
 }

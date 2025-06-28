@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lavapi Test File",
+  "type": "object",
+  "required": ["endpoint", "tests"],
+  "properties": {
+    "endpoint": {
+      "type": "string",
+      "description": "The relative API endpoint path (e.g., /api/auth/login)"
+    },
+    "tests": {
+      "type": "object",
+      "properties": {
+        "functional": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "required": ["method", "expect"],
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"]
+                },
+                "headers": {
+                  "type": "object",
+                  "additionalProperties": { "type": "string" }
+                },
+                "body": {
+                  "type": "object",
+                  "description": "The request body sent to the API"
+                },
+                "expect": {
+                  "type": "object",
+                  "description": "Expected response structure and status code",
+                  "properties": {
+                    "status": {
+                      "type": "number",
+                      "description": "Expected HTTP status code"
+                    },
+                    "body": {
+                      "type": "object",
+                      "description": "Expected JSON body structure (deep match)",
+                      "additionalProperties": true
+                    }
+                  },
+                  "patternProperties": {
+                    "^body\\..+$": {
+                      "description": "Flat-style body field match or reserved keyword",
+                      "anyOf": [
+                        { "type": "string" },
+                        { "type": "number" },
+                        { "type": "boolean" },
+                        { "type": "object" },
+                        { "type": "array" },
+                        {
+                          "type": "string",
+                          "pattern": "^!!(exists|not_exists|not .+)$",
+                          "description": "Reserved assertion: !!exists, !!not_exists, !!not value"
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        },
+        "performance": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "required": ["method", "body", "load", "thresholds"],
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["POST", "GET", "PUT", "DELETE"]
+                },
+                "body": {
+                  "type": "object"
+                },
+                "load": {
+                  "type": "object",
+                  "required": ["users", "duration", "ramp_up"],
+                  "properties": {
+                    "users": {
+                      "type": "number",
+                      "description": "Number of simulated users"
+                    },
+                    "duration": {
+                      "type": "string",
+                      "description": "Total test duration (e.g., 30s, 2m)"
+                    },
+                    "ramp_up": {
+                      "type": "string",
+                      "description": "Ramp-up time for simulated users"
+                    }
+                  }
+                },
+                "thresholds": {
+                  "type": "object",
+                  "properties": {
+                    "response_time_p95": {
+                      "type": "string",
+                      "description": "95th percentile response time threshold (e.g., < 500ms)"
+                    },
+                    "error_rate": {
+                      "type": "string",
+                      "description": "Allowed error rate (e.g., < 2%)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
